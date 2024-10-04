@@ -7,7 +7,7 @@
 1. Create a `.env` file in the project
 2. Copy `.env.example` to `.env`:
    ```bash
-   DATABASE_URL=postgresql://postgres:{DB_PASSWORD}@{ENDPOINT}/{DB_NAME}
+   SQLALCHEMY_DATABASE_URL=postgresql://postgres:{DB_PASSWORD}@{ENDPOINT}/{DB_NAME}
 
 ## Run The Application
 1. Use the following command in the terminal to run the server:
