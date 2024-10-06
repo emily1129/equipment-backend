@@ -38,16 +38,16 @@ def generate_machines(db: Session, count: int = 100) -> list[Machine]:
 
     for i in range(count):
         machine_id = f'{i+1:04d}'
-        status_changes, _ = generate_status_changes()  # We don't need the returned current_status
+        status_changes, _ = generate_status_changes() 
         
-        # Ensure the current status is the last one in the list
+        # ensure the current status is the last one in the list
         current_status = status_changes[-1].status if status_changes else None
         
-        # Create machine
+        # create machine
         db_machine = MachineDB(id=machine_id, current_status=current_status)
         db.add(db_machine)
         
-        # Create status changes
+        # create status changes
         for sc in status_changes:
             db_status_change = StatusChangeDB(
                 machine_id=machine_id,
@@ -56,7 +56,7 @@ def generate_machines(db: Session, count: int = 100) -> list[Machine]:
             )
             db.add(db_status_change)
         
-        # Append to list of generated machines
+        # append to list of generated machines
         generated_machines.append(Machine(
             id=machine_id,
             statusChanges=status_changes,
@@ -71,14 +71,12 @@ def update_machines(db: Session, count: int = 100) -> list[Machine]:
     updated_machines = []
     now = datetime.now().replace(microsecond=0)
 
-    # Get all existing machines
     existing_machines = db.query(MachineDB).all()
 
     for machine in existing_machines:
-        # Generate a new status change
         new_status = random.choice(['生產', '閒置', '當機', '裝機', '工程借機', '其他'])
         
-        # Create a new status change record
+        # create a new status change record
         new_status_change = StatusChangeDB(
             machine_id=machine.id,
             status=new_status,
@@ -86,18 +84,18 @@ def update_machines(db: Session, count: int = 100) -> list[Machine]:
         )
         db.add(new_status_change)
         
-        # Get all status changes for this machine, including the new one
+        # get all status changes for a machine, including the new one
         status_changes = db.query(StatusChangeDB).filter(StatusChangeDB.machine_id == machine.id).order_by(StatusChangeDB.start_time.desc()).all()
         
-        # The most recent status is now the first in the list due to descending order
+        # most recent status is now the first in the list (descending order
         most_recent_status = status_changes[0].status if status_changes else new_status
         
         logging.info(f"Machine {machine.id}: Most recent status is {most_recent_status} at {status_changes[0].start_time}")
         
-        # Update the machine's current status to the most recent status change
+        # update the machine's current status to the most recent status change
         machine.current_status = most_recent_status
 
-        # Create Machine object for return
+        # create Machine object for return
         updated_machine = Machine(
             id=machine.id,
             statusChanges=[StatusChange(status=sc.status, startTime=sc.start_time.isoformat()) for sc in reversed(status_changes)],
@@ -105,14 +103,13 @@ def update_machines(db: Session, count: int = 100) -> list[Machine]:
         )
         updated_machines.append(updated_machine)
 
-    # If there are fewer existing machines than the desired count, create new ones
     if len(existing_machines) < count:
         new_machines = generate_machines(db, count - len(existing_machines))
         updated_machines.extend(new_machines)
 
     db.commit()
 
-    # Sort the updated_machines list by machine ID
+    # sort the updated_machines list by machine ID
     updated_machines.sort(key=lambda m: m.id)
 
     return updated_machines
