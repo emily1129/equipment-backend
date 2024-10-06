@@ -4,10 +4,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-# Load environment variables from .env file (for local development)
+# load environment variables from .env file (for local development)
 load_dotenv()
 
-# Try to get the DATABASE_URL from Railway first, then fall back to SQLALCHEMY_DATABASE_URL
+# get the DATABASE_URL from Railway first, then fall back to SQLALCHEMY_DATABASE_URL
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("SQLALCHEMY_DATABASE_URL")
 
 if not DATABASE_URL:
